@@ -1,0 +1,98 @@
+export const columns = [
+  {
+    title: "STT",
+    scopedSlots: { customRender: "index" },
+    key: "index",
+    align: "center",
+  },
+  {
+    title: "Tiêu đề",
+    dataIndex: "title",
+    key: "title",
+    scopedSlots: { customRender: "title" },
+    align: "center",
+  },
+  {
+    title: "Mô tả",
+    dataIndex: "description",
+    scopedSlots: { customRender: "description" },
+    width: "200px",
+    key: "description",
+    align: "center",
+  },
+  {
+    title: "Giá",
+    dataIndex: "price",
+    scopedSlots: { customRender: "price" },
+    key: "price",
+    align: "center",
+    sorter: (a, b) => a.price - b.price,
+  },
+  {
+    title: "Loại bài đăng",
+    dataIndex: "post_type_name",
+    key: "post_type_name",
+    align: "center",
+  },
+  {
+    title: "Loại phòng",
+    dataIndex: "room_type_name",
+    key: "room_type_name",
+    align: "center",
+  },
+  {
+    title: "Diện tích",
+    dataIndex: "area",
+    key: "area",
+    align: "center",
+    sorter: (a, b) => a.area - b.area,
+  },
+  {
+    title: "Ngày tạo",
+    dataIndex: "created_at",
+    key: "created_at",
+    scopedSlots: { customRender: "created_at" },
+    align: "center",
+    sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+  },
+  {
+    title: "Ngày hết hạn",
+    dataIndex: "expired_in",
+    scopedSlots: { customRender: "expired_in" },
+    align: "center",
+    key: "expired_in",
+    sorter: (a, b) => new Date(a.expired_in) - new Date(b.expired_in),
+  },
+  {
+    title: "Trạng thái",
+    dataIndex: "is_approved",
+    scopedSlots: { customRender: "is_approved" },
+    align: "center",
+    key: "is_approved",
+    filters: [
+      { text: "Đã phê duyệt", value: true },
+      { text: "Chưa phê duyệt", value: false },
+    ],
+    filterMultiple: false,
+    onFilter: (value, record) => record.is_approved === value,
+  },
+  {
+    title: "Ảnh",
+    dataIndex: "images",
+    key: "image",
+    width: "160px",
+    align: "center",
+    scopedSlots: { customRender: "customImage" },
+  },
+  {
+    title: "Hành động",
+    key: "actions",
+    width: "210px",
+    align: "center",
+    scopedSlots: { customRender: "actions" },
+  },
+];
+
+export const pagination = {
+  pageSize: 5,
+};

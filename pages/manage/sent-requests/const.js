@@ -1,0 +1,60 @@
+export const columns = [
+  {
+    title: "STT",
+    scopedSlots: { customRender: "index" },
+    key: "index",
+    align: "center",
+  },
+  {
+    title: "Chủ bài đăng",
+    scopedSlots: { customRender: "userInfo" },
+    align: "center",
+  },
+  {
+    title: "Ngày Yêu Cầu",
+    dataIndex: "request_date",
+    key: "request_date",
+    scopedSlots: { customRender: "request_date" },
+    align: "center",
+    sorter: (a, b) => new Date(a.request_date) - new Date(b.request_date),
+  },
+  {
+    title: "Khoảng Thời Gian",
+    dataIndex: "time_frame",
+    key: "time_frame",
+    align: "center",
+  },
+  {
+    title: "Ghi chú",
+    dataIndex: "note",
+    key: "note",
+    align: "center",
+  },
+  {
+    title: "Bài Đăng",
+    dataIndex: "post_id",
+    key: "post_id",
+    scopedSlots: { customRender: "post_id" },
+    align: "center",
+  },
+  {
+    title: "Trạng thái",
+    dataIndex: "is_approved",
+    key: "is_approved",
+    scopedSlots: { customRender: "is_approved" },
+    align: "center",
+  },
+  {
+    title: "Lý do hủy ",
+    dataIndex: "cancelled_reason",
+    key: "cancelled_reason",
+    scopedSlots: { customRender: "cancelled_reason" },
+    align: "center",
+  },
+  {
+    title: "Hành Động",
+    key: "actions",
+    scopedSlots: { customRender: "actions" },
+    align: "center",
+  },
+];

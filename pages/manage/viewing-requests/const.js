@@ -1,0 +1,71 @@
+export const columns = [
+  {
+    title: "STT",
+    scopedSlots: { customRender: "index" },
+    key: "index",
+    align: "center",
+  },
+  {
+    title: "Người Yêu Cầu",
+    scopedSlots: { customRender: "userInfo" },
+    align: "center",
+  },
+  {
+    title: "Số điện thoại",
+    dataIndex: "phone",
+    key: "phone",
+    align: "center",
+  },
+  {
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
+    align: "center",
+  },
+  {
+    title: "Ngày Yêu Cầu",
+    dataIndex: "request_date",
+    key: "request_date",
+    scopedSlots: { customRender: "request_date" },
+    align: "center",
+    sorter: (a, b) => new Date(a.request_date) - new Date(b.request_date),
+  },
+  {
+    title: "Khoảng Thời Gian",
+    dataIndex: "time_frame",
+    key: "time_frame",
+    align: "center",
+  },
+  {
+    title: "Ghi chú",
+    dataIndex: "note",
+    key: "note",
+    align: "center",
+  },
+  {
+    title: "Bài Đăng",
+    dataIndex: "post_id",
+    key: "post_id",
+    scopedSlots: { customRender: "post_id" },
+    align: "center",
+  },
+  {
+    title: "Trạng thái",
+    dataIndex: "is_approved",
+    scopedSlots: { customRender: "is_approved" },
+    align: "center",
+    key: "is_approved",
+    filters: [
+      { text: "Đã phê duyệt", value: true },
+      { text: "Chưa phê duyệt", value: false },
+    ],
+    filterMultiple: false,
+    onFilter: (value, record) => record.is_approved === value,
+  },
+  {
+    title: "Hành Động",
+    key: "actions",
+    scopedSlots: { customRender: "actions" },
+    align: "center",
+  },
+];
