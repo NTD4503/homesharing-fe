@@ -241,26 +241,48 @@ export default {
       const sortType = queryParams.sortType;
       const gender = queryParams.gender;
       const order = queryParams.order;
-
+      const radius_km = queryParams.radius;
+      console.log("radius_km:", radius_km);
       if (locationCodes) {
         this.decodedLocations = JSON.parse(decodeURIComponent(locationCodes));
       }
 
-      let searchCriteria = {
-        post_type_id: postType,
-        room_type_name: roomType,
-        min_price: minPrice,
-        max_price: maxPrice,
-        min_area: minArea,
-        max_area: maxArea,
-        location_codes: this.decodedLocations,
-        sort_type: sortType,
-        gender: gender,
-        order: order,
-      };
-      await this.filterPostsByCriteria(searchCriteria);
-      this.setCurrentSortOrder();
-    },
+        let lat = null;
+  let lng = null;
+  if (radius_km) {
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+        });
+      });
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+      console.log("Vị trí hiện tại:", lat, lng);
+    } catch (error) {
+      console.error("Không thể lấy vị trí hiện tại:", error);
+    }
+  }
+
+ const searchCriteria = {
+    post_type_id: postType,
+    room_type_name: roomType,
+    min_price: minPrice,
+    max_price: maxPrice,
+    min_area: minArea,
+    max_area: maxArea,
+    location_codes: this.decodedLocations,
+    sort_type: sortType,
+    gender: gender,
+    order: order,
+    radius_km: radius_km,
+    lat: lat,
+    lng: lng,
+  };
+ console.log('searchCriteria',searchCriteria);
+  await this.filterPostsByCriteria(searchCriteria);
+  this.setCurrentSortOrder();
+},
     setCurrentSortOrder() {
       const queryParams = this.$route.query;
       this.currentSortType = queryParams.sortType || null;

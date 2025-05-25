@@ -22,6 +22,7 @@ export const actions = {
       this.$axios
         .get(`/api/v1/transactions/${userId}`)
         .then((response) => {
+          console.log("Transactions fetched:", response.data);
           commit("SET_TRANSACTIONS", response.data);
           resolve(response.data);
         })
@@ -36,6 +37,7 @@ export const actions = {
       this.$axios
         .post("/api/v1/transactions/admin/in-range", payload)
         .then((response) => {
+
           commit("SET_TRANSACTIONS_IN_RANGE", response.data);
           resolve(response.data);
         })

@@ -11,11 +11,18 @@ export const state = () => ({
   queryPosts: [],
   amenities: [],
   accurateAddress: "",
+  lat: null,
+  lng: null,
 });
 
 export const mutations = {
+
   SET_ACCURATE_ADDRESS(state, accurateAddress) {
     state.accurateAddress = accurateAddress;
+  },
+  SET_LAT_LNG(state, { lat, lng }) {
+    state.lat = lat;
+    state.lng = lng;
   },
   SET_POSTS(state, posts) {
     state.posts = posts;
@@ -314,6 +321,7 @@ export const actions = {
         });
     });
   },
+
 
   filterPostsByQuery({ commit }, query) {
     console.log(query);

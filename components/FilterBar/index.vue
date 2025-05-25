@@ -72,6 +72,17 @@
       <template v-else> Chọn diện tích </template>
     </a-button>
 
+    <a-input-number
+  v-model="radius"
+  :min="0"
+  :max="50"
+  :step="1"
+  class="w-40 mr-3"
+  placeholder="Bán kính (km)"
+>
+  <template #addonAfter>km</template>
+</a-input-number>
+
     <!-- Button for Search -->
     <a-button
       @click="search"
@@ -178,6 +189,7 @@ export default {
       priceModalVisible: false,
       areaModalVisible: false,
       genders,
+      radius: null,
     };
   },
   computed: {
@@ -248,6 +260,9 @@ export default {
           parseInt(urlParams.get("minArea")) || 0,
           parseInt(urlParams.get("maxArea")) || 90,
         ],
+          radius: urlParams.get("radius")
+    ? parseFloat(urlParams.get("radius"))
+    : null,
       };
       Object.assign(this, params);
     },
@@ -267,6 +282,7 @@ export default {
         selectedLocation: [],
         priceRange: [0, 15],
         areaRange: [0, 90],
+        radius: null,
       };
 
       const criteriaChanged = Object.keys(defaultCriterias).some((key) => {
@@ -298,6 +314,10 @@ export default {
         ) {
           query += `&minArea=${this.areaRange[0]}&maxArea=${this.areaRange[1]}`;
         }
+
+        if (this.radius !== null && this.radius !== "") {
+      query += `&radius=${this.radius}`;
+    }
 
         this.$router.push(query);
       } else {

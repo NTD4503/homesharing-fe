@@ -117,6 +117,10 @@ export default {
   },
   data() {
     return {
+      currentLocation: {
+      lat: null,
+      lng: null,
+    },
       mappedRoomTypes: [],
       priceRanges,
       areaRanges,
@@ -135,6 +139,7 @@ export default {
       this.fetchHottestPosts(),
       this.fetchRoomTypes(),
     ]);
+     this.getCurrentLocation();
     this.mappedRoomTypes = this.roomTypes.map((roomType) => {
       return {
         ...roomType,
@@ -149,6 +154,7 @@ export default {
     hottestPosts: (state) => state.modules["post"].hottestPosts,
     roomTypes: (state) => state.modules["post"].roomTypes,
   }),
+
   filteredPosts() {
     return this.posts.filter(post => !post.is_block);
   },
@@ -191,8 +197,25 @@ export default {
       this.currentPage = page;
       window.scrollTo({ top: -5, behavior: "smooth" }); // Scroll to the specific position
     },
-  },
-};
+  getCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert("Trình duyệt không hỗ trợ lấy vị trí");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        console.log("Lấy vị trí thành công:", lat, lng);
+
+        this.currentLocation = { lat, lng };
+        });
+      (error) => {
+        alert("Không lấy được vị trí: " + error.message);
+      }
+  }
+},
+  };
 </script>
 
 <style>

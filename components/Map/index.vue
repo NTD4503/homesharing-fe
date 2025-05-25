@@ -97,8 +97,11 @@ export default {
           address: newValue,
         };
         await this.getGeolocation(payload);
-        this.lat = this.geolocation.location.lat;
-        this.lng = this.geolocation.location.lng;
+              const lat = this.geolocation.location.lat;
+        const lng = this.geolocation.location.lng;
+        this.lat = lat;
+        this.lng = lng;
+this.$store.commit("modules/post/SET_LAT_LNG", { lat, lng });
         if (this.map) {
           this.map.setView([this.lat, this.lng], this.defaultZoom);
           this.marker.setLatLng([this.lat, this.lng]);

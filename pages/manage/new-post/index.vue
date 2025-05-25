@@ -382,6 +382,8 @@ export default {
         userId: null,
         accurateAddress: null,
         locationCodes: [],
+        lat: 21.0278,
+        lng: 105.8342,
         gender: null,
         imageList: [],
       },
@@ -423,6 +425,8 @@ export default {
       roomTypes: (state) => state.modules["post"].roomTypes,
       amenities: (state) => state.modules["post"].amenities,
       services: (state) => state.modules["service"].services,
+     lat: (state) => state.modules["post"].lat,
+    lng: (state) => state.modules["post"].lng,
     }),
     displayedImages() {
       return this.form.imageList.slice(0, 4);
@@ -531,8 +535,15 @@ export default {
     },
     async handleSubmit() {
       this.loading = true;
+      console.log("TRƯỚC KHI SUBMIT:", {
+  lat: this.form.lat,
+  lng: this.form.lng,
+  locationCodes: this.form.locationCodes,
+});
+
+
       if (
-        !this.isFormFieldsFilled(this.form) ||
+        // !this.isFormFieldsFilled(this.form) ||
         !this.selectedProvince ||
         !this.selectedDistrict ||
         !this.selectedWard ||
@@ -545,10 +556,10 @@ export default {
       }
       try {
         this.form.locationCodes = [
-          this.selectedProvince.toString(),
-          this.selectedDistrict.toString(),
-          this.selectedWard.toString(),
-        ];
+  this.selectedProvince.toString(),
+  this.selectedDistrict.toString(),
+  this.selectedWard.toString(),
+];
 
         const imageUrls = await Promise.all(
           this.tempFiles.map(async (image) => {
@@ -595,6 +606,8 @@ export default {
           user_id: this.form.userId,
           gender: this.form.gender,
           location_codes: this.form.locationCodes,
+          lat: this.lat,
+          lng: this.lng,
           post_type_id: this.form.selectedPostType,
           is_approved: this.serviceId === 1 ? true : false,
           expired_in: this.serviceId === 1 ? expirationDate : null,

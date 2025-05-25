@@ -6,7 +6,9 @@
       <Nuxt />
     </main>
     <br />
+ 
     <Footer />
+    <Chat />
   </div>
 </template>
 
@@ -19,6 +21,7 @@ export default {
   components: {
     Header,
     Footer,
+    Chat
   },
   data() {
     return {

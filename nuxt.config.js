@@ -54,6 +54,11 @@ export default {
   },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    filenames: {
+      app: ({ isDev }) => isDev ? '[name].js?v=dev123' : '[contenthash].js?v=1.0.0',
+      chunk: ({ isDev }) => isDev ? '[name].js?v=dev123' : '[contenthash].js?v=1.0.0',
+      css: ({ isDev }) => isDev ? '[name].css?v=dev123' : '[contenthash].css?v=1.0.0'
+    },
     postcss: {
       plugins: {
         tailwindcss: {},
