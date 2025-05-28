@@ -31,7 +31,7 @@ export default function ({ $axios, store }) {
   $axios.onError(async (error) => {
     const { response } = error;
 
-    if (response && response.status === 401) {
+    if (response?.status === 401) {
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (refreshToken) {
@@ -40,17 +40,26 @@ export default function ({ $axios, store }) {
             "/api/v1/auth/refresh-token",
             { refresh_token: refreshToken }
           );
+
           const newAccessToken = refreshResponse.data.accessToken;
           localStorage.setItem("accessToken", newAccessToken);
 
+          // Retry original request
           response.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return $axios(response.config);
         } catch (refreshError) {
-          console.error("Token refresh failed", refreshError);
+          console.error("Refresh token expired. Redirecting to login.");
+          localStorage.clear(); // ⚠️ Clear hết token lỗi
+          window.location.href = "/login"; // ⚠️ Tránh loop, redirect thẳng
         }
+      } else {
+        localStorage.clear();
+        window.location.href = "/login";
       }
     }
 
     return Promise.reject(error);
   });
+
+
 }

@@ -1,47 +1,57 @@
 <template>
-  <div
-    class="border border-gray-300 rounded-lg p-4 flex flex-col items-center w-full"
-  >
+  <div class="border border-gray-300 rounded-xl p-6 flex flex-col items-center w-full shadow-sm">
     <img
       :src="avatar"
       alt="Landlord Avatar"
-      class="w-16 h-16 rounded-full mb-2"
+      class="w-20 h-20 rounded-full mb-3 object-cover border border-gray-200"
     />
-    <p class="text-lg font-semibold">{{ userName }}</p>
-    <div class="mt-4">
-      <div>
-        <button
-          class="contact-button phone bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full"
-        >
-          <span class="text-lg">
-            <i class="fa fa-phone" aria-hidden="true"></i> {{ phone }}
-          </span>
-        </button>
-      </div>
-      <div class="mt-4">
-        <button
-          class="contact-button bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center w-full"
-        >
-          <img
-            class="w-1/5 mr-2"
-            src="../../static/icon-zalo.png"
-            alt="Zalo Icon"
-          />
-          <a :href="`https://zalo.me/${phone}`" target="_blank">Nhắn Zalo</a>
-        </button>
-      </div>
+    <p class="text-xl font-semibold text-gray-800">{{ userName }}</p>
 
-      <div class="mt-4">
-        <button
-          @click="toggleFavorite"
-          class="favorite-button bg-gray-300 text-white font-bold py-2 px-4 rounded w-full w-full"
-        >
-          <span class="heart-icon mr-2" :class="{ 'text-red-500': isFavorite }">
-            <i class="fa fa-heart" aria-hidden="true"></i>
-          </span>
-          <span>{{ isFavorite ? "Đã Thích" : "Yêu Thích" }}</span>
-        </button>
-      </div>
+    <div class="flex flex-col gap-3 mt-5 w-full">
+      <!-- Nút gọi điện -->
+      <button
+        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
+      >
+        <i class="fa fa-phone" aria-hidden="true"></i>
+        <span>{{ phone }}</span>
+      </button>
+
+      <!-- Nút nhắn tin -->
+      <a-button
+        type="primary"
+        @click="handleNewChat"
+        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
+      >
+      <i class="fa fa-comments" aria-hidden="true"></i>
+        <span>Nhắn tin</span>
+      </a-button>
+
+      <!-- Nút nhắn Zalo
+      <button
+        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
+      >
+        <img
+          class="w-5 h-5"
+          src="../../static/icon-zalo.png"
+          alt="Zalo Icon"
+        />
+        <a :href="`https://zalo.me/${phone}`" target="_blank" class="text-white no-underline">
+          Nhắn Zalo
+        </a>
+      </button> -->
+
+      <!-- Nút yêu thích -->
+      <button
+        @click="toggleFavorite"
+        class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
+      >
+        <i
+          class="fa fa-heart"
+          :class="{ 'text-red-500': isFavorite }"
+          aria-hidden="true"
+        ></i>
+        <span>{{ isFavorite ? "Đã Thích" : "Yêu Thích" }}</span>
+      </button>
       <br />
 
       <div v-if="postTypeId === 1 && userRole === 3">
@@ -209,6 +219,9 @@ export default {
     phone: {
       required: true,
     },
+        userID: {
+      required: true,
+    },
   },
   data() {
     return {
@@ -227,6 +240,8 @@ export default {
       postTypeId: null,
       availableTimeSlots,
       postTimeFrames: [],
+      newUser1: null,
+      newUser2: null,
     };
   },
   computed: {
@@ -294,7 +309,32 @@ export default {
       unfavorPost: "modules/favorite/unfavorPost",
       fetchFavoriteByPost: "modules/favorite/fetchFavoriteByPost",
       fetchPostById: "modules/post-detail/fetchPostById",
+      createConversationAction: 'modules/message/createConversation',
+      fetchConversations: 'modules/message/fetchConversations',
     }),
+    
+async handleNewChat() {
+  const payload = {
+    user1_id: this.userId,
+    user2_id: this.userID,
+  }
+
+  try {
+    const conversation = await this.createConversationAction(payload)
+
+    // 🔁 Cập nhật danh sách trước khi mở
+    await this.fetchConversations(this.userId)
+
+    this.$store.commit('modules/message/setCurrentConversationId', conversation.id)
+
+    // Gửi event để mở ChatWindow
+    window.dispatchEvent(new CustomEvent('open-chat', {
+      detail: { conversationId: conversation.id }
+    }))
+  } catch (err) {
+    console.error('Lỗi tạo cuộc trò chuyện:', err)
+  }
+},
 
     async toggleFavorite() {
       if (!this.userId) {
