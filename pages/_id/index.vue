@@ -34,6 +34,7 @@
           :avatar="post.avatar"
           :user-name="post.user_name"
           :phone="post.phone"
+          :userID="post.user_id"
         />
         <br />
         <Categories

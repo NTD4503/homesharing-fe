@@ -1,9 +1,12 @@
+import Vue from 'vue'
+
 export const state = () => ({
   currentUser: null,
   forgotPassUser: null,
   users: [],
   roles: [],
   balance: 0,
+  userCache: {},
 });
 
 export const mutations = {
@@ -21,6 +24,9 @@ export const mutations = {
   },
   SET_BALANCE(state, balance) {
     state.balance = balance;
+  },
+  CACHE_USER(state, user) {
+    Vue.set(state.userCache, user.user_id, user)
   },
 };
 
@@ -191,4 +197,21 @@ export const actions = {
         });
     });
   },
+
+  fetchSingleUserById({ commit }, userId) {
+    return new Promise((resolve, reject) => {
+      this.$axios
+        .get(`/api/v1/users/${userId}`)
+        .then((response) => {
+          commit("CACHE_USER", response.data);
+          console.log("User fetched:", response.data);
+          resolve(response.data);
+        })
+        .catch((error) => {
+          console.error("❌ [fetchSingleUserById] Failed to fetch user:", error);
+          reject(error);
+        });
+    });
+  }
 };
+

@@ -1,266 +1,287 @@
 <template>
   <div>
+    <!-- Nút hiện chat -->
     <button
       v-if="!showChat"
       @click="showChatWindow"
-      class="fixed bottom-0 right-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-8 mr-8"
+      class="fixed bottom-0 right-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-8 mr-8 z-50"
     >
       Chat
     </button>
 
+    <!-- Overlay và Chat box -->
     <div
       v-if="showChat"
-      class="fixed bottom-0 right-0 m-5 p-5 bg-white shadow-md rounded-lg w-[500px] h-[500px] overflow-hidden"
+      @click.self="hideChatWindow"
+      class="fixed inset-0 bg-black bg-opacity-30 flex items-end justify-end z-40"
     >
-      <a-button
-        type="primary"
-        @click="hideChatWindow"
-        class="absolute top-0 right-0 m-2"
-        ><i class="fa fa-close text-red-500 mr-2 text-base"></i> Đóng</a-button
-      >
-
       <div
-        class="max-h-[450px] overflow-y-auto max-w-[500px] pb-10"
-        ref="chatWindow"
+        class="relative m-5 p-5 bg-white shadow-lg rounded-lg w-[700px] h-[600px] flex flex-col"
       >
-        <br />
-        <div
-          v-for="(message, index) in messages"
-          :key="index"
-          class="flex mb-6"
+        <!-- Nút đóng -->
+        <button
+          @click="hideChatWindow"
+          class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded"
         >
-          <div
-            v-if="message.type === 'user'"
-            class="flex justify-end w-full mr-2"
-          >
-            <div class="bg-blue-500 text-white rounded-lg p-2 max-w-xs">
-              <p>{{ message.content }}</p>
-            </div>
+          Đóng
+        </button>
+
+        <!-- Nội dung chat -->
+        <div class="flex flex-1 overflow-hidden mt-6">
+          <!-- Sidebar -->
+          <div class="w-1/3 border-r overflow-y-auto pr-2">
+            <ul>
+              <li
+                v-for="conv in conversations || []"
+                :key="conv.id"
+                @click="selectConversation(conv)"
+                class="cursor-pointer p-2 hover:bg-gray-100 flex items-center space-x-2"
+                :class="{ 'font-bold bg-blue-50': currentConversationId === conv.id }"
+              >
+                <template v-if="userCache[getOtherUserId(conv)]?.avatar">
+                  <img
+                    :src="userCache[getOtherUserId(conv)].avatar"
+                    alt="avatar"
+                    class="w-10 h-10 rounded-full object-cover"
+                  />
+                </template>
+                <template v-else>
+                  <div
+                    class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold"
+                  >
+                    {{ userCache[getOtherUserId(conv)]?.avatar }}
+                  </div>
+                </template>
+                <span>{{ getUserNameByUserId(getOtherUserId(conv)) }}</span>
+              </li>
+            </ul>
           </div>
-          <div
-            v-else-if="message.type === 'bot'"
-            class="flex justify-start w-full"
-          >
-            <div
-              v-if="message.render === 'text'"
-              class="bg-gray-500 text-white rounded-lg p-2 max-w-xs"
-            >
-              <p>{{ message.content }}</p>
-            </div>
-            <a-card v-else class="rounded w-64">
-              <div class="flex items-center">
-                <a-avatar
-                  :src="message.content.avatar"
-                  :size="32"
-                  class="mr-2"
-                />
-                <div>
-                  <p class="text-gray-600">{{ message.content.user_name }}</p>
-                  <p class="text-sm text-gray-500">
-                    {{ message.content.phone }}
-                  </p>
+
+          <!-- Khung tin nhắn -->
+          <div class="w-2/3 pl-4 flex flex-col">
+            <div class="flex-1 overflow-y-auto space-y-2 pr-2">
+              <div
+                v-for="message in messages"
+                :key="message.id + '-' + message.created_at"
+                class="flex"
+                :class="{
+                  'justify-end': message.sender_id === confirmedUserId,
+                  'justify-start': message.sender_id !== confirmedUserId
+                }"
+              >
+                <div
+                  :class="[ 
+                    message.sender_id === confirmedUserId
+                      ? 'bg-blue-500 text-white ml-auto' 
+                      : 'bg-gray-200 text-black mr-auto', 
+                    'rounded-lg px-3 py-2 max-w-[70%] break-words'
+                  ]"
+                >
+                  {{ message.text }}
                 </div>
               </div>
-              <div class="mt-2">
-                <img
-                  :src="message.content.images[0]"
-                  alt="Post Image"
-                  class="rounded mb-2 w-full h-24 object-cover"
-                />
-                <p class="text-sm text-gray-800">
-                  Giá phòng : {{ formatCurrency(message.content.price) }}
-                </p>
-                <p class="text-sm text-gray-800">
-                  Diện tích: {{ formatArea(message.content.area) }}
-                </p>
-                <p class="text-sm text-gray-800">
-                  Địa chỉ: {{ message.content.location }}
-                </p>
-              </div>
-              <a-button
-                type="primary"
-                @click="goToPost(message.content.post_id)"
-                class="mt-2"
-              >
-                Xem bài đăng
-              </a-button>
-            </a-card>
-          </div>
-        </div>
-      </div>
+            </div>
 
-      <div class="absolute bottom-0 w-full bg-white p-2 flex items-center">
-        <div v-if="isBotAnswering" class="ml-[200px] flex items-center">
-          <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
+            <!-- Nhập tin nhắn -->
+            <div class="mt-2 flex">
+              <input
+                v-model="text"
+                @keyup.enter="send"
+                type="text"
+                placeholder="Nhập tin nhắn..."
+                class="border flex-1 px-3 py-2 rounded"
+              />
+              <button
+                @click="send"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ml-2"
+              >
+                Gửi
+              </button>
+            </div>
           </div>
-          <span>Bot đang trả lời...</span>
-        </div>
-        <div class="flex flex-1">
-          <a-textarea
-            v-model="inputMessage"
-            @pressEnter="sendMessage"
-            placeholder="Nhập yêu cầu của bạn..."
-            class="ml-5 mr-2 w-[350px]"
-            v-if="!isBotAnswering"
-          />
-          <a-button
-            :disabled="inputMessage === '' || isBotAnswering"
-            type="primary"
-            @click="sendMessage"
-            class="mt-2"
-            v-if="!isBotAnswering"
-            ><i class="fa fa-paper-plane mr-2" aria-hidden="true"></i>
-            Gửi</a-button
-          >
         </div>
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
-import { message } from "ant-design-vue";
-import { mapActions, mapState } from "vuex";
-import markdownTable from "markdown-table";
+import { mapState, mapActions } from 'vuex'
+import { jwtDecode } from 'jwt-decode'
 
 export default {
-  components: {},
   data() {
     return {
-      showChat: false,
-      inputMessage: "",
-      messages: [{ content: "Chào bạn!!", type: "bot", render: "text" }],
-      isBotAnswering: false,
-    };
+      currentUserId: null,      // user nhập
+      confirmedUserId: null,    // user đã xác nhận từ token
+      text: '',
+      newUser1: null,
+      newUser2: null,
+      showChat: false, // Biến để điều khiển hiển thị chat
+    }
   },
+
   computed: {
     ...mapState({
-      queryPosts: (state) => state.modules["chat"].queryPosts,
-      normalMessage: (state) => state.modules["chat"].normalMessage,
-      services: (state) => state.modules["service"].services,
+      conversations: (state) => state.modules['message'].conversations,
+      messages: (state) => state.modules['message'].messages,
+      currentConversationId: (state) => state.modules['message'].currentConversationId,
+      userCache: state => state.modules['user'].userCache || {},
     }),
-    filteredPosts() {
-      return this.queryPosts;
-    },
   },
+
   async mounted() {
-    await this.fetchAllServices();
+    window.addEventListener('open-chat', this.onOpenChatEvent)
+    if (process.browser) {
+      const token = localStorage.getItem("accessToken")
+      if (token) {
+        try {
+          const decoded = jwtDecode(token)
+          const userId = decoded.user?.user_id
+          if (userId) {
+            this.confirmedUserId = Number(userId)
+            // console.log("user_id lấy từ token:", this.confirmedUserId)
+
+            // Fetch conversations ngay khi lấy được userId
+            await this.fetchConversations(this.confirmedUserId)
+                  for (const conv of this.conversations) {
+        const otherUserId = this.getOtherUserId(conv)
+        if (otherUserId && !this.userCache[otherUserId]) {
+          await this.fetchSingleUserById(otherUserId)
+        }
+      }
+          } else {
+            console.warn("Không tìm thấy user_id trong token")
+          }
+        } catch (err) {
+          console.error("Lỗi giải mã token:", err)
+        }
+      } else {
+        console.warn("Không tìm thấy accessToken trong localStorage")
+      }
+    }
   },
+
+  beforeDestroy() {
+  window.removeEventListener('open-chat', this.onOpenChatEvent)
+},
+
+
   methods: {
     ...mapActions({
-      chatCompletion: "modules/chat/chatCompletion",
-      fetchAllServices: "modules/service/fetchAllServices",
+      fetchConversations: 'modules/message/fetchConversations',
+      fetchMessages: 'modules/message/fetchMessages',
+      createConversationAction: 'modules/message/createConversation',
+      sendMessage: 'modules/message/sendMessage',
+      fetchSingleUserById: 'modules/user/fetchSingleUserById',
     }),
+
+      async onOpenChatEvent(event) {
+    const conversationId = event.detail.conversationId
+    const conversation = this.conversations.find(c => c.id === conversationId)
+    if (conversation) {
+      await this.selectConversation(conversation)
+      this.showChatWindow()
+    } else {
+      console.warn("Không tìm thấy cuộc trò chuyện với ID:", conversationId)
+    }
+  },
+    
+
     showChatWindow() {
-      this.showChat = true;
-      this.$nextTick(() => {
-        this.scrollToBottom();
-      });
+      this.showChat = true
     },
+
     hideChatWindow() {
-      this.showChat = false;
+      this.showChat = false
     },
-    async callChatAPI() {
+
+        getOtherUserId(conv) {
+      if (!conv || !this.confirmedUserId) return null
+      return conv.user1_id === this.confirmedUserId ? conv.user2_id : conv.user1_id
+    },
+
+    getUserNameByUserId(userId) {
+      if (!userId) return 'Unknown user'
+      return this.userCache[userId]?.user_name || `User #${userId}`
+    },
+
+    async send() {
+      if (!this.text.trim()) return
+      await this.sendMessage({
+        conversation_id: this.currentConversationId,
+        sender_id: this.confirmedUserId,
+        text: this.text,
+      })
+      this.text = ''
+    },
+
+    async selectConversation(conversation) {
+      this.$store.commit('modules/message/setCurrentConversationId', conversation.id)
+      await this.fetchMessages({ conversationId: conversation.id, pusher: this.$pusher })
+
+      // Load avatar/name của user đối thoại nếu chưa có
+      const otherUserId = this.getOtherUserId(conversation)
+      if (otherUserId && !this.userCache[otherUserId]) {
+        const user = await this.fetchSingleUserById(otherUserId)
+        console.log(`✅ [selectConversation] Fetched user:`, user)
+      }
+    },
+
+        async createConversation() {
+      if (!this.newUser1 || !this.newUser2) {
+        alert('Nhập đủ user 1 và user 2 ID')
+        return
+      }
       try {
-        this.isBotAnswering = true;
-        let postMessage = this.inputMessage;
-        this.inputMessage = "";
-        if (postMessage.toLowerCase().includes("dịch vụ")) {
-          this.messages.push({
-            content: this.renderServices(),
-            type: "bot",
-            render: "text",
-          });
-          this.isBotAnswering = false;
-          return;
-        }
-        const response = await this.chatCompletion(postMessage);
-        console.log(response);
-        if (typeof response !== "string") {
-          if (this.queryPosts.length > 0) {
-            this.messages.push({
-              content: "Các phòng theo yêu cầu của bạn:",
-              type: "bot",
-              render: "text",
-            });
-            this.queryPosts.forEach((post) => {
-              this.messages.push({
-                content: post,
-                type: "bot",
-                render: "post",
-              });
-            });
-          } else {
-            this.messages.push({
-              content:
-                "Xin lỗi,tôi không tìm thấy thông tin theo yêu cầu của bạn\nVui lòng đưa ra các tiêu chí khác!",
-              type: "bot",
-              render: "text",
-            });
-          }
-        } else {
-          this.messages.push({
-            content: this.normalMessage,
-            type: "bot",
-            render: "text",
-          });
-        }
-        this.isBotAnswering = false;
-      } catch (error) {
-        console.error("Error calling Chat API:", error);
-      }
-    },
-    renderServices() {
-      const serviceList = this.services
-        .map((service) => {
-          return `• ${service.service_name}\n`;
+        const conversation = await this.createConversationAction({
+          user1_id: this.newUser1,
+          user2_id: this.newUser2,
         })
-        .join("");
-      return "Chúng tôi có các gói dịch vụ sau:\n\n" + serviceList;
-    },
 
-    async sendMessage() {
-      if (this.inputMessage.trim() !== "") {
-        this.messages.push({
-          content: this.inputMessage,
-          type: "user",
-        });
+        this.$store.commit('modules/message/setCurrentConversationId', conversation.id)
 
-        await this.callChatAPI();
+        await this.fetchConversations(this.confirmedUserId)
+        await this.fetchMessages({ conversationId: conversation.id, pusher: this.$pusher })
 
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
-        this.inputMessage = "";
-      } else {
-        message.warning("Vui lòng nhập tin nhắn");
+        // Tự động tải userCache cho user mới
+        const otherUserId = this.getOtherUserId(conversation)
+        if (otherUserId && !this.userCache[otherUserId]) {
+          await this.fetchSingleUserById(otherUserId)
+        }
+
+        this.newUser1 = null
+        this.newUser2 = null
+      } catch (error) {
+        console.error('Lỗi tạo cuộc trò chuyện:', error)
       }
-    },
-
-    scrollToBottom() {
-      const chatWindow = this.$refs.chatWindow;
-      if (chatWindow) {
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-      }
-    },
-    goToPost(postId) {
-      this.$router.push(postId);
-    },
-    formatCurrency(price) {
-      return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-      }).format(price);
-    },
-    formatArea(area) {
-      return new Intl.NumberFormat("vi-VN").format(area) + " m²";
     },
   },
-};
+
+    async onOpenChatEvent(e) {
+    const conversationId = e.detail.conversationId
+    if (!conversationId) return
+
+    this.showChat = true
+    this.$store.commit('modules/message/setCurrentConversationId', conversationId)
+    await this.fetchMessages({ conversationId, pusher: this.$pusher })
+
+    // Optional: fetch avatar người kia nếu chưa có
+    const conv = this.conversations.find(c => c.id === conversationId)
+    if (conv) {
+      const otherId = this.getOtherUserId(conv)
+      if (otherId && !this.userCache[otherId]) {
+        await this.fetchSingleUserById(otherId)
+      }
+    }
+  }
+
+  
+}
 </script>
+
+
 
 <style scoped>
 .typing-indicator {

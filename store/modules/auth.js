@@ -7,7 +7,6 @@ export const state = () => ({
 export const mutations = {
   SET_USER(state, user) {
     state.user = user;
-    console.log(user)
     localStorage.setItem("accessToken", user.access_token);
     localStorage.setItem("refreshToken", user.refresh_token);
   },
@@ -28,7 +27,7 @@ export const actions = {
       this.$axios
         .post("/api/v1/auth/login", { email, password })
         .then((response) => {
-          console.log(response);
+          console.log(">>> login response:", response.data);
           if (response.data.user) commit("SET_USER", response.data.user);
           resolve(response.data);
         })

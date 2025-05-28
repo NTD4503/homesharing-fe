@@ -28,12 +28,15 @@
 
     <div class="flex justify-center">
       <a-button :loading="loading" @click="getRevenueInRange"
-        >Thống kê</a-button
+        >Thống kê giao dịch</a-button
       >
+      <a-button type="default" @click="showPieChart">
+      Thống kê lượt mua
+    </a-button>
     </div>
     <br />
 
-    <div v-if="transactionsInRange.length > 0" class="text-xl text-center">
+    <div v-if="totalRevenue !== null || transactionsInRange.length > 0" class="text-xl text-center">
       <div v-if="chartType === 'table'">
         Tổng số giao dịch:
         <span class="font-bold">{{ transactionsInRange.length }}</span>
@@ -48,7 +51,7 @@
       </div>
     </div>
 
-    <div class="mt-8" v-if="transactionsInRange.length > 0">
+    <div class="mt-8" v-if="totalRevenue !== null || transactionsInRange.length > 0">
       <label
         v-if="chartType === 'table'"
         class="text-sm font-medium text-gray-700 mr-2"
@@ -100,7 +103,7 @@
           <a-radio-button value="column"
             ><i class="fa fa-bar-chart" aria-hidden="true"></i
           ></a-radio-button>
-          <a-radio-button value="pie"
+          <a-radio-button value="pie" v-show="false"
             ><i class="fa fa-pie-chart" aria-hidden="true"></i
           ></a-radio-button>
         </a-radio-group>
@@ -124,7 +127,7 @@
                   " (" +
                   mostPurchasedService.purchaseCount +
                   " lượt mua)"
-                : "N/A"
+                : "0"
             }}</span>
           </p>
           <p class="text-lg">
@@ -135,7 +138,7 @@
                   " (" +
                   leastPurchasedService.purchaseCount +
                   " lượt mua)"
-                : "N/A"
+                : "0"
             }}</span>
             <br /><br />
           </p>
@@ -213,8 +216,8 @@
         </div>
       </div>
     </div>
-    <div v-else class="flex justify-center">
-      <div
+    <div v-else-if="totalRevenue === null" class="flex justify-center">
+      <!-- <div
         class="mt-5 w-1/2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"
         role="alert"
       >
@@ -222,7 +225,7 @@
           Không có giao dịch nào trong khoảng thời gian từ
           {{ formatDate(dateRange[0]) }} đến {{ formatDate(dateRange[1]) }}.
         </p>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -501,8 +504,12 @@ export default {
         currency: "VND",
       }).format(amount);
     },
+    showPieChart() {
+  this.chartType = 'pie';
+},
   },
 };
+
 </script>
 
 <style scoped>
