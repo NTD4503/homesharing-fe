@@ -1,4 +1,5 @@
 <template>
+  <div class="overlay">
   <div
     class="w-1/3 h-[300px] p-8 rounded border bg-gray-100 verify-otp flex flex-col items-center justify-center"
   >
@@ -12,6 +13,7 @@
         placeholder="Nhập mã OTP"
         class="mb-4 w-full"
       />
+      <p v-if="otpError" class="text-red-500 text-sm mt-1">{{ otpError }}</p>
       <div class="flex justify-between">
         <a-button @click="submitOTP" class="w-1/2 mr-2"> Xác nhận </a-button>
         <a-button type="default" class="w-3/4 ml-2" @click="resendOTP">
@@ -22,6 +24,7 @@
         </a-button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -40,6 +43,7 @@ export default {
       resendDisabled: true,
       countdown: 60,
       timer: null,
+      otpError: "",
     };
   },
   computed: {
@@ -51,7 +55,12 @@ export default {
     }),
   },
   mounted() {
-    console.log(this.forgotPassUser);
+    // console.log(this.forgotPassUser);
+    const stored = sessionStorage.getItem("genedOTP");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      this.$store.commit("modules/auth/SET_GENED_OTP", parsed);
+    }
     this.startCountdown();
   },
   methods: {
@@ -60,62 +69,70 @@ export default {
       verifyOTP: "modules/auth/verifyOTP",
       sendOTP: "modules/auth/sendOTP",
     }),
-    async submitOTP() {
-      if (!this.userOTP) {
-        message.warning("Vui lòng nhập mã OTP!");
-        return;
-      }
+  async submitOTP() {
+  if (!this.userOTP) {
+    message.warning("Vui lòng nhập mã OTP!");
+    return;
+  }
 
-      if (this.$route.query.verify_type === "forgot-password") {
-        const response = await this.verifyOTP({
-          userOTP: this.userOTP,
-          genedOTP: this.genedOTP,
-        });
-        if (response.message === "OTP matched") {
-          sessionStorage.setItem("otpVerified", "true"); 
-          message.success("Xác nhận OTP thành công!");
-          this.$router.push("/reset-password");
-        } else {
-          message.error(response.message);
-        }
+  if (this.$route.query.verify_type === "forgot-password") {
+    const response = await this.verifyOTP({
+      userOTP: this.userOTP,
+      genedOTP: this.genedOTP,
+    });
+    if (response.message === "OTP matched") {
+      sessionStorage.setItem("otpVerified", "true");
+      message.success("Xác nhận OTP thành công!");
+      this.$router.push("/reset-password");
+    } else {
+      message.error(response.message);
+    }
+  } else {
+    try {
+      const response = await this.signUp({
+        userData: this.userTemp,
+        userOTP: this.userOTP,
+        genedOTP: this.genedOTP,
+      });
+      if (response?.newUser) {
+        message.success("Đăng ký thành công!");
+        this.$router.push("/login"); 
       } else {
-        const response = await this.signUp({
-          userData: this.userTemp,
-          userOTP: this.userOTP,
-          genedOTP: this.genedOTP,
-        });
-        if (typeof response !== "string") {
-          message.success("Xác nhận OTP thành công!");
-          this.$router.push("/");
-          setTimeout(() => {
-            location.reload();
-          }, 10);
-        } else {
-          message.error(response);
-        }
+        message.error(response?.message || "OTP không hợp lệ!");
       }
-    },
+    } catch (error) {
+      message.error(error.message || "OTP không hợp lệ!");
+    }
+  }
+},
 
     async resendOTP() {
       let typeCheck = "";
-      console.log(this.userTemp);
+      let email = "";
       if (!this.forgotPassUser) {
         typeCheck = "register";
-        await this.sendOTP({
-          email: this.userTemp.email,
-          type_check: typeCheck,
-        });
+        email = this.userTemp.email;
       } else {
         typeCheck = "forgot";
-        await this.sendOTP({
-          email: this.forgotPassUser.email,
+        email = this.forgotPassUser.email;
+      }
+      try {
+        const response = await this.sendOTP({
+          email,
           type_check: typeCheck,
         });
+
+        if (response?.genedOTP) {
+          sessionStorage.setItem("genedOTP", JSON.stringify(response.genedOTP));
+          this.$store.commit("modules/auth/SET_GENED_OTP", response.genedOTP);
+        }
+        message.info("Gửi lại OTP thành công!");
+        this.resendDisabled = true;
+        this.countdown = 60;
+        this.startCountdown();
+      } catch (err) {
+        message.error(err?.response?.data?.message || "Gửi lại OTP thất bại!");
       }
-      message.info("Gửi lại OTP thành công!");
-      this.resendDisabled = true;
-      this.countdown = 60;
-      this.startCountdown();
     },
 
     startCountdown() {
@@ -133,7 +150,19 @@ export default {
 </script>
 
 <style scoped>
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* nền mờ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 .verify-otp {
   padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  border-radius: 8px;
 }
 </style>

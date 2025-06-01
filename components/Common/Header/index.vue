@@ -9,7 +9,7 @@
 
       <div class="flex items-center space-x-4">
         <div class="text-2xl text-gray-700 font-bold animate-pulse">
-          Chào mừng bạn đến với nền tảng
+          Chào mừng bạn đến với nền tảng homesharing
         </div>
       </div>
 

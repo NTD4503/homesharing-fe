@@ -42,9 +42,6 @@ export const actions = {
       this.$axios
         .post("/api/v1/auth/signup", { userData, userOTP, genedOTP })
         .then((response) => {
-          if (response.data.newUser) {
-            commit("SET_USER", response.data.newUser);
-          }
           resolve(response.data);
         })
         .catch((error) => {

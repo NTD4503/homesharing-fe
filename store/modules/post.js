@@ -156,7 +156,7 @@ export const actions = {
       this.$axios
         .get("/api/v1/posts")
         .then((response) => {
-          const filteredPosts = response.data.filter(post => !post.is_block);
+          const filteredPosts = response.data.filter(post => !post.is_blocked);
           // console.log("datapost", response.data);
           commit("SET_POSTS", filteredPosts);
           resolve(filteredPosts);
@@ -189,7 +189,7 @@ export const actions = {
         .get("/api/v1/posts/criteria/latest")
         .then((response) => {
           const filteredPosts = response.data.filter(post => !post.is_blocked);
-          console.log('latePost store', filteredPosts);
+          // console.log('latePost store', filteredPosts);
           commit("SET_LATEST_POSTS", filteredPosts);
           resolve(filteredPosts);
         })
