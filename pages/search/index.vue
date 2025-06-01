@@ -70,7 +70,7 @@
             <a-pagination
               :current="currentPage"
               :pageSize="pageSize"
-              :total="criteriaPosts.length"
+              :total="criteriaPosts.filter(post => !post.is_blocked).length"
               @change="handlePageChange"
             />
           </div>
@@ -155,9 +155,16 @@ export default {
       wards: (state) => state.modules["province"].wards,
     }),
     paginatedPosts() {
+      const now = new Date();
+      const filtered = this.criteriaPosts.filter(post => {
+        if (post.is_blocked) return false;
+        if (!post.expired_in) return true; 
+        const expiryDate = new Date(post.expired_in);
+        return expiryDate > now;
+       });
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.criteriaPosts.slice(start, end);
+      return filtered.slice(start, end);
     },
   },
   async created() {

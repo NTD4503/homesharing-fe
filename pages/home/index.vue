@@ -75,7 +75,7 @@
             <a-pagination
               :current="currentPage"
               :pageSize="pageSize"
-              :total="filteredPosts.length"
+              :total="filteredPosts.filter(post => !post.is_blocked).length"
               @change="handlePageChange"
             />
           </div>
@@ -155,13 +155,21 @@ export default {
     roomTypes: (state) => state.modules["post"].roomTypes,
   }),
 
-  filteredPosts() {
-    return this.posts.filter(post => !post.is_block);
-  },
+filteredPosts() {
+  const now = new Date(); 
+  return this.posts.filter(post => {
+    if (post.is_blocked) return false;
+    if (!post.expired_in) return true; 
+    const expiryDate = new Date(post.expired_in); 
+    return expiryDate > now; 
+  });
+},
+
   paginatedPosts() {
+    const filtered = this.filteredPosts.filter(post => !post.is_blocked);
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    return this.filteredPosts.slice(start, end);
+    return filtered.slice(start, end);
   }
 },
 
@@ -206,7 +214,7 @@ export default {
       (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        console.log("Lấy vị trí thành công:", lat, lng);
+        // console.log("Lấy vị trí thành công:", lat, lng);
 
         this.currentLocation = { lat, lng };
         });

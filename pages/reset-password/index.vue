@@ -1,4 +1,5 @@
 <template>
+  <div class="overlay">
   <div class="w-1/4 change-password-container bg-gray-100 p-8 rounded-lg">
     <h2 class="change-password-title text-xl font-bold mb-4">Mật khẩu mới</h2>
     <a-input-password
@@ -18,6 +19,7 @@
     <a-button @click="updatePassword" class="w-1/2 mx-auto">
       Đặt lại mật khẩu
     </a-button>
+  </div>
   </div>
 </template>
 
@@ -85,5 +87,14 @@ export default {
 
 .change-password-title {
   margin-bottom: 20px;
+}
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* nền mờ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 </style>
