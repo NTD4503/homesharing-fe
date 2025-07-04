@@ -11,17 +11,14 @@
         {{ type.room_type_name }}
       </a-select-option>
     </a-select>
-
-    <!-- Cascader for Location -->
     <a-cascader
       v-model="selectedLocation"
-      class="w-[500px] mr-3"
+      class="w-[400px] mr-3"
       :options="locationOptions"
       change-on-select
       placeholder="Chọn địa điểm"
     ></a-cascader>
-
-    <a-select v-model="selectedGender" class="w-48 mr-3">
+    <a-select v-model="selectedGender" class="w-40 mr-3">
       <a-select-option value="">Phòng dành cho</a-select-option>
       <a-select-option
         v-for="gender in genders"
@@ -71,17 +68,12 @@
       </template>
       <template v-else> Chọn diện tích </template>
     </a-button>
-
-    <a-input-number
-  v-model="radius"
-  :min="0"
-  :max="50"
-  :step="1"
-  class="w-40 mr-3"
-  placeholder="Bán kính (km)"
->
-  <template #addonAfter>km</template>
-</a-input-number>
+    <a-button
+      @click="toggleMap"
+      class="mr-3 bg-white text-black hover:bg-blue-500 hover:text-white hover:border-blue-500 relative"
+    >
+      {{ showMap ? "Tìm kiếm theo bán kính" : "Tìm kiếm theo bán kính" }}
+    </a-button>
 
     <!-- Button for Search -->
     <a-button
@@ -94,6 +86,57 @@
     <a-button title="Đặt lại" @click="resetAllFilters" type="default" class="">
       <i class="fa fa-refresh" aria-hidden="true"></i>
     </a-button>
+    <!-- tìm kiếm theo vị trí -->
+    <template>
+      <div class="mt-4">
+        <!-- Button -->
+
+        <!-- Form for search query -->
+        <div v-show="showMap">
+          <form
+            @submit.prevent="searchLocation"
+            class="mb-3 flex items-center gap-4 px-5"
+          >
+            <input
+              v-model="searchQuery"
+              placeholder="Nhập địa điểm (VD: 12 Nguyễn Trãi, Hà Nội)"
+              class="px-3 py-2 w-72 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-500 transition"
+            />
+            <button
+              type="submit"
+              class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+            >
+              Tìm địa chỉ
+            </button>
+
+            <!-- Input for radius -->
+            <a-input-number
+              v-model="radius"
+              :min="0"
+              :max="50"
+              :step="1"
+              class="w-40 ml-4"
+              placeholder="Bán kính (km)"
+            >
+              <template #addonAfter>km</template>
+            </a-input-number>
+          </form>
+          <div class="text-sm text-gray-600 mt-2">
+            Hệ thống sẽ tìm phòng trong bán kính từ vị trí hiện tại (hoặc vị trí
+            đã chọn).
+          </div>
+
+          <!-- Map container -->
+          <div id="map" class="h-96 mt-4"></div>
+
+          <!-- Selected LatLng -->
+          <div v-if="selectedLatLng" class="result mt-2 text-sm text-gray-700">
+            📍 Vị trí đã chọn:
+            <strong>{{ selectedLatLng.lat }}, {{ selectedLatLng.lng }}</strong>
+          </div>
+        </div>
+      </div>
+    </template>
 
     <!-- Price Popup Modal -->
     <a-modal
@@ -122,13 +165,11 @@
         <a-button @click="setPriceRange([10, 15])">10-15 triệu</a-button>
         <a-button @click="setPriceRange([15, 15])">Trên 15 triệu</a-button>
       </div>
-      <!-- Áp dụng button -->
       <div class="mt-4 flex justify-center">
         <a-button @click="handleOk">Áp dụng</a-button>
       </div>
     </a-modal>
 
-    <!-- Area Popup Modal -->
     <a-modal
       :footer="null"
       v-model:visible="areaModalVisible"
@@ -170,6 +211,19 @@
 import { Modal, Button, Cascader, Select, Slider } from "ant-design-vue";
 import { mapState, mapActions } from "vuex";
 import { genders } from "./const";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import axios from "axios";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 export default {
   components: {
@@ -190,6 +244,14 @@ export default {
       areaModalVisible: false,
       genders,
       radius: null,
+      map: null,
+      marker: null,
+      selectedLatLng: null,
+      searchQuery: "",
+      showMap: false,
+      lat: null,
+      lng: null,
+      hasSearched: false,
     };
   },
   computed: {
@@ -217,6 +279,8 @@ export default {
     },
   },
   async mounted() {
+    this.initMap();
+    this.getCurrentLocation();
     await this.getProvinces();
     if (this.$route.path !== "/") {
       await this.fetchInitialData();
@@ -244,6 +308,84 @@ export default {
       fetchPostTypes: "modules/post/fetchPostTypes",
       fetchRoomTypes: "modules/post/fetchRoomTypes",
     }),
+    toggleMap() {
+      this.showMap = !this.showMap;
+      this.$nextTick(() => {
+        if (this.showMap && this.map) {
+          this.map.invalidateSize();
+        }
+      });
+    },
+    initMap() {
+      this.map = L.map("map").setView([21.0278, 105.8342], 16); // Hà Nội mặc định
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(this.map);
+
+      this.map.on("click", (e) => {
+        this.setMarker(e.latlng);
+      });
+    },
+    getCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          const latlng = L.latLng(latitude, longitude);
+
+          // ❗ Chỉ setView nếu chưa từng tìm kiếm
+          if (!this.hasSearched) {
+            this.map.setView(latlng, 16);
+          }
+
+          this.setMarker(latlng);
+        });
+      }
+    },
+    setMarker(latlng) {
+      this.selectedLatLng = latlng;
+
+      if (this.marker) {
+        this.marker.setLatLng(latlng);
+      } else {
+        this.marker = L.marker(latlng).addTo(this.map);
+      }
+    },
+    async searchLocation() {
+      console.log("Tìm kiếm địa điểm:", this.searchQuery);
+      if (!this.searchQuery) return;
+
+      try {
+        const res = await axios.get(
+          "https://nominatim.openstreetmap.org/search",
+          {
+            params: {
+              q: this.searchQuery,
+              format: "json",
+              addressdetails: 1,
+              limit: 1,
+            },
+          }
+        );
+
+        if (res.data.length > 0) {
+          const place = res.data[0];
+          const lat = parseFloat(place.lat);
+          const lon = parseFloat(place.lon);
+          const latlng = L.latLng(lat, lon);
+
+          this.hasSearched = true; // ✅ Đã tìm kiếm
+
+          this.map.setView(latlng, 16);
+          this.setMarker(latlng);
+        } else {
+          alert("Không tìm thấy địa điểm!");
+        }
+      } catch (error) {
+        console.error("Lỗi tìm địa điểm:", error);
+      }
+    },
+
     async fetchInitialData() {
       const urlParams = new URLSearchParams(window.location.search);
       const params = {
@@ -260,9 +402,9 @@ export default {
           parseInt(urlParams.get("minArea")) || 0,
           parseInt(urlParams.get("maxArea")) || 90,
         ],
-          radius: urlParams.get("radius")
-    ? parseFloat(urlParams.get("radius"))
-    : null,
+        radius: urlParams.get("radius")
+          ? parseFloat(urlParams.get("radius"))
+          : null,
       };
       Object.assign(this, params);
     },
@@ -273,9 +415,17 @@ export default {
       this.areaModalVisible = true;
     },
     saveFiltersToQuery() {
+      // Kiểm tra nếu có radius hoặc lat, lng
+      if (
+        this.radius ||
+        (this.selectedLatLng?.lat && this.selectedLatLng?.lng)
+      ) {
+        this.selectedLocation = []; // Gán selectedLocation là một mảng rỗng
+      }
       const encodedLocation = this.encodeSelectedLocation(
         this.selectedLocation
       );
+
       const defaultCriterias = {
         selectedApartmentType: "all",
         selectedGender: "",
@@ -316,8 +466,11 @@ export default {
         }
 
         if (this.radius !== null && this.radius !== "") {
-      query += `&radius=${this.radius}`;
-    }
+          query += `&radius=${this.radius}`;
+        }
+        if (this.selectedLatLng?.lat && this.selectedLatLng?.lng) {
+          query += `&lat=${this.selectedLatLng.lat}&lng=${this.selectedLatLng.lng}`;
+        }
 
         this.$router.push(query);
       } else {
@@ -349,8 +502,10 @@ export default {
       this.priceRange = [0, 15];
       this.areaRange = [0, 90];
       this.saveFiltersToQuery();
+      this.$router.push("/home");
     },
     search() {
+      this.showMap = false;
       this.saveFiltersToQuery();
     },
     encodeSelectedLocation(selectedProvinceIds) {

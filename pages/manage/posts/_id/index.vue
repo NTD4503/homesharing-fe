@@ -1,3 +1,4 @@
+<!-- update post -->
 <template>
   <div>
     <h1 class="text-3xl">Đăng tin mới</h1>

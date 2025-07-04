@@ -23,7 +23,7 @@
               <span class="font-semibold">Số điện thoại:</span> 0123 456 789
             </li>
             <li class="mb-2">
-              <span class="font-semibold">Email:</span> supporter@rental.com
+              <span class="font-semibold">Email:</span> dat.nt194503@gmail.com
             </li>
             <li>
               <span class="font-semibold">Địa chỉ:</span> Giải Phóng,Thanh

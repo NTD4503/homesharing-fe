@@ -10,10 +10,17 @@
         />
       </div>
     </div>
-    <div class="navigation prev" @click="slide('prev')">
+    <div
+      class="navigation prev bg-gray-600 text-white rounded-full p-3 hover:bg-gray-700 transition"
+      @click="slide('prev')"
+    >
       <i class="fa fa-chevron-left"></i>
     </div>
-    <div class="navigation next" @click="slide('next')">
+
+    <div
+      class="navigation next bg-gray-600 text-white rounded-full p-3 hover:bg-gray-700 transition"
+      @click="slide('next')"
+    >
       <i class="fa fa-chevron-right"></i>
     </div>
     <div class="pagination">
@@ -33,11 +40,7 @@
       :height="200"
     >
       <div class="flex justify-center">
-        <img
-          :src="modalImageUrl"
-          alt="Image"
-          class="rounded-lg h-full"
-        />
+        <img :src="modalImageUrl" alt="Image" class="rounded-lg h-full" />
       </div>
       <div
         class="navigation prev"

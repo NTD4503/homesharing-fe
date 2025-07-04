@@ -70,9 +70,12 @@
       <template slot="created_at" slot-scope="text"
         >{{ formatDate(text) }}
       </template>
-      <template slot="expired_in" slot-scope="text, record"
-        >{{ formatDate(text) }}
-        <a-tag v-if="record.is_approved && !record.available" color="red">
+      <template slot="expired_in" slot-scope="text, record">
+        {{ formatDate(text) }}
+        <a-tag
+          v-if="(record.is_approved && !record.available) || hasExpired(record)"
+          color="red"
+        >
           Hết hạn
         </a-tag>
       </template>

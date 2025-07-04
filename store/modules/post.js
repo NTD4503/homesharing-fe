@@ -16,7 +16,6 @@ export const state = () => ({
 });
 
 export const mutations = {
-
   SET_ACCURATE_ADDRESS(state, accurateAddress) {
     state.accurateAddress = accurateAddress;
   },
@@ -156,7 +155,9 @@ export const actions = {
       this.$axios
         .get("/api/v1/posts")
         .then((response) => {
-          const filteredPosts = response.data.filter(post => !post.is_blocked);
+          const filteredPosts = response.data.filter(
+            (post) => !post.is_blocked
+          );
           // console.log("datapost", response.data);
           commit("SET_POSTS", filteredPosts);
           resolve(filteredPosts);
@@ -188,7 +189,9 @@ export const actions = {
       this.$axios
         .get("/api/v1/posts/criteria/latest")
         .then((response) => {
-          const filteredPosts = response.data.filter(post => !post.is_blocked);
+          const filteredPosts = response.data.filter(
+            (post) => !post.is_blocked
+          );
           // console.log('latePost store', filteredPosts);
           commit("SET_LATEST_POSTS", filteredPosts);
           resolve(filteredPosts);
@@ -299,6 +302,7 @@ export const actions = {
         .post("/api/v1/posts/filter-by-criteria", criteria)
         .then((response) => {
           commit("SET_CRITERIA_POSTS", response.data);
+          console.log("Filtered posts by criteria:", response.data);
           resolve(response.data);
         })
         .catch((error) => {
@@ -312,28 +316,17 @@ export const actions = {
       this.$axios
         .post("/api/v1/posts/filter-by-area", areaCodes)
         .then((response) => {
-          commit("SET_AREA_POSTS", response.data);
-          resolve(response.data);
+          const now = new Date();
+          const filteredPosts = response.data.filter((post) => {
+            const expiredDate = new Date(post.expired_in);
+            return expiredDate > now;
+          });
+
+          commit("SET_AREA_POSTS", filteredPosts);
+          resolve(filteredPosts);
         })
         .catch((error) => {
           console.error("Error filtering posts by area:", error);
-          reject(error);
-        });
-    });
-  },
-
-
-  filterPostsByQuery({ commit }, query) {
-    console.log(query);
-    return new Promise((resolve, reject) => {
-      this.$axios
-        .post("/api/v1/posts/filter-by-query", { query })
-        .then((response) => {
-          commit("SET_QUERY_POSTS", response.data);
-          resolve(response.data);
-        })
-        .catch((error) => {
-          console.error("Error filtering posts by query:", error);
           reject(error);
         });
     });

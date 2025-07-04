@@ -1,19 +1,12 @@
 <template>
-  <div class ="home">
+  <div class="home">
     <div class="text-center">
       <FilterBar />
     </div>
     <br />
     <div class="text-center">
-      <span class="font-bold text-3xl"> Tìm kiếm chỗ thuê ưng ý </span>
+      <span class="font-bold text-2xl"> Tìm kiếm chỗ thuê ưng ý </span>
       <br />
-      <p>
-        Kênh thông tin Phòng trọ số 1 Việt Nam - Website đăng tin cho thuê phòng
-        trọ, nhà nguyên căn, căn hộ, ở ghép nhanh, hiệu quả với 100.000+ tin
-        đăng và 2.500.000 lượt xem mỗi tháng.
-      </p>
-      <br />
-      <p class="text-base font-bold">Khu vực nổi bật</p>
     </div>
     <br />
     <div style="display: flex; justify-content: center">
@@ -75,7 +68,7 @@
             <a-pagination
               :current="currentPage"
               :pageSize="pageSize"
-              :total="filteredPosts.filter(post => !post.is_blocked).length"
+              :total="filteredPosts.filter((post) => !post.is_blocked).length"
               @change="handlePageChange"
             />
           </div>
@@ -118,9 +111,9 @@ export default {
   data() {
     return {
       currentLocation: {
-      lat: null,
-      lng: null,
-    },
+        lat: null,
+        lng: null,
+      },
       mappedRoomTypes: [],
       priceRanges,
       areaRanges,
@@ -139,7 +132,7 @@ export default {
       this.fetchHottestPosts(),
       this.fetchRoomTypes(),
     ]);
-     this.getCurrentLocation();
+    this.getCurrentLocation();
     this.mappedRoomTypes = this.roomTypes.map((roomType) => {
       return {
         ...roomType,
@@ -148,30 +141,30 @@ export default {
     });
   },
   computed: {
-  ...mapState({
-    posts: (state) => state.modules["post"].posts,
-    latestPosts: (state) => state.modules["post"].latestPosts,
-    hottestPosts: (state) => state.modules["post"].hottestPosts,
-    roomTypes: (state) => state.modules["post"].roomTypes,
-  }),
+    ...mapState({
+      posts: (state) => state.modules["post"].posts,
+      latestPosts: (state) => state.modules["post"].latestPosts,
+      hottestPosts: (state) => state.modules["post"].hottestPosts,
+      roomTypes: (state) => state.modules["post"].roomTypes,
+    }),
 
-filteredPosts() {
-  const now = new Date(); 
-  return this.posts.filter(post => {
-    if (post.is_blocked) return false;
-    if (!post.expired_in) return true; 
-    const expiryDate = new Date(post.expired_in); 
-    return expiryDate > now; 
-  });
-},
+    filteredPosts() {
+      const now = new Date();
+      return this.posts.filter((post) => {
+        if (post.is_blocked) return false;
+        if (!post.expired_in) return true;
+        const expiryDate = new Date(post.expired_in);
+        return expiryDate > now;
+      });
+    },
 
-  paginatedPosts() {
-    const filtered = this.filteredPosts.filter(post => !post.is_blocked);
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return filtered.slice(start, end);
-  }
-},
+    paginatedPosts() {
+      const filtered = this.filteredPosts.filter((post) => !post.is_blocked);
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return filtered.slice(start, end);
+    },
+  },
 
   methods: {
     ...mapActions({
@@ -205,25 +198,24 @@ filteredPosts() {
       this.currentPage = page;
       window.scrollTo({ top: -5, behavior: "smooth" }); // Scroll to the specific position
     },
-  getCurrentLocation() {
-    if (!navigator.geolocation) {
-      alert("Trình duyệt không hỗ trợ lấy vị trí");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
+    getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert("Trình duyệt không hỗ trợ lấy vị trí");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition((position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         // console.log("Lấy vị trí thành công:", lat, lng);
 
         this.currentLocation = { lat, lng };
-        });
+      });
       (error) => {
         alert("Không lấy được vị trí: " + error.message);
-      }
-  }
-},
-  };
+      };
+    },
+  },
+};
 </script>
 
 <style>

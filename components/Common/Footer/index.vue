@@ -9,14 +9,14 @@
       <br />
       <div>
         <div class="text-center text-2xl mb-4">
-          <span class="font-bold">Tại sao lại chọn rentalapp123.com?</span>
+          <span class="font-bold">Tại sao lại chọn homesharing.io.vn?</span>
         </div>
         <p class="text-center text-lg mb-6 leading-relaxed">
-          Chúng tôi biết bạn có rất nhiều lựa chọn, nhưng Phongtro123.com tự hào
-          là trang web đứng top google về các từ khóa: cho thuê phòng trọ, nhà
-          trọ, thuê nhà nguyên căn, cho thuê căn hộ, tìm người ở ghép, cho thuê
-          mặt bằng... Vì vậy tin của bạn đăng trên website sẽ tiếp cận được với
-          nhiều khách hàng hơn, do đó giao dịch nhanh hơn, tiết kiệm chi phí
+          Chúng tôi biết bạn có rất nhiều lựa chọn, nhưng homesharing.io.vn tự
+          hào là trang web đứng top google về các từ khóa: cho thuê phòng trọ,
+          nhà trọ, thuê nhà nguyên căn, cho thuê căn hộ, tìm người ở ghép, cho
+          thuê mặt bằng... Vì vậy tin của bạn đăng trên website sẽ tiếp cận được
+          với nhiều khách hàng hơn, do đó giao dịch nhanh hơn, tiết kiệm chi phí
           hơn.
         </p>
       </div>
@@ -27,7 +27,7 @@
           <span class="text-lg">Thành viên</span>
         </div>
         <div>
-          <span class="font-bold text-2xl">{{ totalPosts }}+</span>
+          <span class="font-bold text-2xl">{{ totalPost }}+</span>
           <br />
           <span class="text-lg">Bài đăng</span>
         </div>
@@ -49,7 +49,7 @@
         <hr class="w-1/4 border-yellow-400 border-t-4 rounded-full" />
       </div>
       <div class="mt-12 text-center">
-        <h2 class="text-2xl font-bold mb-6">CÓ GÌ Ở Rental123?</h2>
+        <h2 class="text-2xl font-bold mb-6">CÓ GÌ Ở homesharing?</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           <div class="flex flex-col items-center">
             <img :src="apartmentSrc" alt="Căn hộ" class="w-12 h-12 mb-4" />
@@ -113,18 +113,6 @@
         <p><i class="fa fa-quote-left text-2xl" aria-hidden="true"></i></p>
       </div>
       <br />
-      <div class="mb-6">
-        <p class="italic text-lg">
-          "Trước khi biết website rental123, mình phải tốn nhiều công sức và chi
-          phí cho việc đăng tin cho thuê: từ việc phát tờ rơi, dán giấy, và đăng
-          lên các website khác nhưng hiệu quả không cao. Từ khi biết website
-          phongtro123.com, mình đã thử đăng tin lên và đánh giá hiệu quả khá cao
-          trong khi chi phí khá thấp, không còn tình trạng phòng trống kéo dài."
-        </p>
-        <span class="block mt-2 text-right text-lg"
-          >- Anh Khánh (chủ hệ thống phòng trọ tại Tp.HCM)</span
-        >
-      </div>
       <div>
         <button
           @click="handlePostClick"
@@ -149,8 +137,8 @@ import supportSrc from "../../../static/support.png";
 export default {
   data() {
     return {
-      totalPosts: null,
-      totalUsers: null,
+      totalUser: null,
+      totalPost: null,
       apartmentSrc,
       waterSrc,
       securitySrc,

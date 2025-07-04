@@ -1,3 +1,4 @@
+<!-- post quanh khu vuc -->
 <template>
   <div v-if="post" class="flex px-12 py-4 gap-6">
     <div class="flex-1">

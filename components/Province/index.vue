@@ -18,8 +18,7 @@ export default {
   components: {
     ProvinceBtn,
   },
-  mounted() {
-  },
+  mounted() {},
   data() {
     return {
       locationData: locationData,

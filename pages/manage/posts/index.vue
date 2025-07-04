@@ -1,3 +1,4 @@
+<!-- list post -->
 <template>
   <div class="container mx-auto">
     <h1 class="text-3xl font-bold mb-4">Các Bài Đăng Của Bạn</h1>
@@ -175,7 +176,8 @@ export default {
       return clonePosts.filter((post) => {
         const postDate = moment(post.created_at).startOf("day");
         return (
-          postDate.isSameOrAfter(moment(startDate).startOf("day")) && postDate.isSameOrBefore(endDate)
+          postDate.isSameOrAfter(moment(startDate).startOf("day")) &&
+          postDate.isSameOrBefore(endDate)
         );
       });
     },

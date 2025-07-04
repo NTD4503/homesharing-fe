@@ -1,21 +1,7 @@
+<!-- page service -->
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-8 text-center">Bảng giá dịch vụ</h1>
-    <div class="text-center">
-      <p>Áp dụng từ ngày 12/05/2024</p>
-      <br />
-      <p>
-        Phongtro123 xin quý khách hàng thân thương được phép điều chỉnh giá dịch
-        vụ.
-      </p>
-      <br />
-      <p>
-        Chúng tôi luôn mong muốn đem lại trải nghiệm tốt hơn, hoàn hảo hơn cho
-        quý khách hàng trong suốt thời gian gắn bó. Chúng tôi quyết định điều
-        chỉnh giá, để tồn tại và trên cả là phục vụ hết mình vì quý khách hàng
-        đã, đang và sẽ đồng hành tại website.
-      </p>
-    </div>
     <br /><br />
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       <div

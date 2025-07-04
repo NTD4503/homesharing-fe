@@ -1,3 +1,4 @@
+<!-- page search -->
 <template>
   <div>
     <div class="text-center">
@@ -70,7 +71,7 @@
             <a-pagination
               :current="currentPage"
               :pageSize="pageSize"
-              :total="criteriaPosts.filter(post => !post.is_blocked).length"
+              :total="criteriaPosts.filter((post) => !post.is_blocked).length"
               @change="handlePageChange"
             />
           </div>
@@ -156,12 +157,12 @@ export default {
     }),
     paginatedPosts() {
       const now = new Date();
-      const filtered = this.criteriaPosts.filter(post => {
+      const filtered = this.criteriaPosts.filter((post) => {
         if (post.is_blocked) return false;
-        if (!post.expired_in) return true; 
+        if (!post.expired_in) return true;
         const expiryDate = new Date(post.expired_in);
         return expiryDate > now;
-       });
+      });
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       return filtered.slice(start, end);
@@ -249,47 +250,47 @@ export default {
       const gender = queryParams.gender;
       const order = queryParams.order;
       const radius_km = queryParams.radius;
+      const lat = queryParams.lat || null;
+      const lng = queryParams.lng || null;
       console.log("radius_km:", radius_km);
       if (locationCodes) {
         this.decodedLocations = JSON.parse(decodeURIComponent(locationCodes));
       }
 
-        let lat = null;
-  let lng = null;
-  if (radius_km) {
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-        });
-      });
-      lat = position.coords.latitude;
-      lng = position.coords.longitude;
-      console.log("Vị trí hiện tại:", lat, lng);
-    } catch (error) {
-      console.error("Không thể lấy vị trí hiện tại:", error);
-    }
-  }
+      if (!lat || !lng) {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+            });
+          });
+          lat = position.coords.latitude;
+          lng = position.coords.longitude;
+          console.log("Vị trí hiện tại:", lat, lng);
+        } catch (error) {
+          console.error("Không thể lấy vị trí hiện tại:", error);
+        }
+      }
 
- const searchCriteria = {
-    post_type_id: postType,
-    room_type_name: roomType,
-    min_price: minPrice,
-    max_price: maxPrice,
-    min_area: minArea,
-    max_area: maxArea,
-    location_codes: this.decodedLocations,
-    sort_type: sortType,
-    gender: gender,
-    order: order,
-    radius_km: radius_km,
-    lat: lat,
-    lng: lng,
-  };
- console.log('searchCriteria',searchCriteria);
-  await this.filterPostsByCriteria(searchCriteria);
-  this.setCurrentSortOrder();
-},
+      const searchCriteria = {
+        post_type_id: postType,
+        room_type_name: roomType,
+        min_price: minPrice,
+        max_price: maxPrice,
+        min_area: minArea,
+        max_area: maxArea,
+        location_codes: this.decodedLocations,
+        sort_type: sortType,
+        gender: gender,
+        order: order,
+        radius_km: radius_km,
+        lat: lat,
+        lng: lng,
+      };
+      console.log("searchCriteria", searchCriteria);
+      await this.filterPostsByCriteria(searchCriteria);
+      this.setCurrentSortOrder();
+    },
     setCurrentSortOrder() {
       const queryParams = this.$route.query;
       this.currentSortType = queryParams.sortType || null;

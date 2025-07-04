@@ -1,3 +1,4 @@
+<!-- list contact -->
 <template>
   <div class="container mx-auto">
     <h1 class="text-3xl font-bold mb-4">Liên hệ từ người dùng</h1>

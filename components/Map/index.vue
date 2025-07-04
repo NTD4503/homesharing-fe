@@ -46,10 +46,19 @@ export default {
         await this.fetchPostById(postId);
         let payload = {
           address: this.post.location,
+          lat: this.post.lat,
+          lng: this.post.lng,
         };
-        await this.getGeolocation(payload);
-        this.lat = this.geolocation.location.lat;
-        this.lng = this.geolocation.location.lng;
+        if (this.post.lat && this.post.lng) {
+          // Nếu có sẵn lat và lng
+          this.lat = this.post.lat;
+          this.lng = this.post.lng;
+        } else {
+          // Nếu chưa có thì mới gọi getGeolocation
+          await this.getGeolocation(payload);
+          this.lat = this.geolocation.location.lat;
+          this.lng = this.geolocation.location.lng;
+        }
       }
     } catch (error) {
       console.error("Error fetching geolocation data:", error);
@@ -97,11 +106,11 @@ export default {
           address: newValue,
         };
         await this.getGeolocation(payload);
-              const lat = this.geolocation.location.lat;
+        const lat = this.geolocation.location.lat;
         const lng = this.geolocation.location.lng;
         this.lat = lat;
         this.lng = lng;
-this.$store.commit("modules/post/SET_LAT_LNG", { lat, lng });
+        this.$store.commit("modules/post/SET_LAT_LNG", { lat, lng });
         if (this.map) {
           this.map.setView([this.lat, this.lng], this.defaultZoom);
           this.marker.setLatLng([this.lat, this.lng]);

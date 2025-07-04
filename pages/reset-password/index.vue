@@ -1,25 +1,26 @@
+<!-- page reset-password -->
 <template>
   <div class="overlay">
-  <div class="w-1/4 change-password-container bg-gray-100 p-8 rounded-lg">
-    <h2 class="change-password-title text-xl font-bold mb-4">Mật khẩu mới</h2>
-    <a-input-password
-      v-model="password"
-      type="password"
-      placeholder="Mật khẩu mới"
-      class="mb-4"
-    />
-    <br />
-    <a-input-password
-      v-model="confirmPassword"
-      type="password"
-      placeholder="Nhập lại mật khẩu"
-      class="mb-4"
-    />
-    <br />
-    <a-button @click="updatePassword" class="w-1/2 mx-auto">
-      Đặt lại mật khẩu
-    </a-button>
-  </div>
+    <div class="w-1/4 change-password-container bg-gray-100 p-8 rounded-lg">
+      <h2 class="change-password-title text-xl font-bold mb-4">Mật khẩu mới</h2>
+      <a-input-password
+        v-model="password"
+        type="password"
+        placeholder="Mật khẩu mới"
+        class="mb-4"
+      />
+      <br />
+      <a-input-password
+        v-model="confirmPassword"
+        type="password"
+        placeholder="Nhập lại mật khẩu"
+        class="mb-4"
+      />
+      <br />
+      <a-button @click="updatePassword" class="w-1/2 mx-auto">
+        Đặt lại mật khẩu
+      </a-button>
+    </div>
   </div>
 </template>
 
@@ -90,8 +91,11 @@ export default {
 }
 .overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0,0,0,0.5); /* nền mờ */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* nền mờ */
   display: flex;
   justify-content: center;
   align-items: center;

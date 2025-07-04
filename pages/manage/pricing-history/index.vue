@@ -18,6 +18,13 @@
     >
     <br />
     <br />
+    <p>
+      <a-tag class="text-base ml-[20px]" color="green"
+        >Ngày hết hạn : {{ formatDate(this.serviceExpiredDate) }}</a-tag
+      >
+    </p>
+    <br />
+
     <a-table
       :columns="columns"
       :data-source="filteredHistories"
@@ -51,6 +58,7 @@ export default {
       pagination,
       userId: null,
       dateRange: null,
+      serviceExpiredDate: null,
     };
   },
   computed: {
@@ -80,7 +88,9 @@ export default {
       const token = localStorage.getItem("accessToken");
       if (token) {
         const decoded = jwtDecode(token);
+        this.user = decoded.user;
         this.userId = decoded.user.user_id;
+        this.serviceExpiredDate = this.user.service_expiry_date;
         await this.fetchPurchaseHistoryByUser(this.userId);
       }
     }
@@ -90,7 +100,7 @@ export default {
       fetchPurchaseHistoryByUser: "modules/service/fetchPurchaseHistoryByUser",
     }),
     formatDate(date) {
-      return moment(date).format("HH:mm DD/MM/YYYY");
+      return moment(date).format("DD/MM/YYYY");
     },
     customRow(record, index) {
       return { props: { rowKey: index } };

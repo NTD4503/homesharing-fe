@@ -1,5 +1,7 @@
 <template>
-  <div class="border border-gray-300 rounded-xl p-6 flex flex-col items-center w-full shadow-sm">
+  <div
+    class="border border-gray-300 rounded-xl p-6 flex flex-col items-center w-full shadow-sm"
+  >
     <img
       :src="avatar"
       alt="Landlord Avatar"
@@ -9,20 +11,21 @@
 
     <div class="flex flex-col gap-3 mt-5 w-full">
       <!-- Nút gọi điện -->
-      <button
-        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
-      >
-        <i class="fa fa-phone" aria-hidden="true"></i>
-        <span>{{ phone }}</span>
-      </button>
+      <a :href="'tel:' + phone">
+        <button
+          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
+        >
+          <i class="fa fa-phone" aria-hidden="true"></i>
+          <span>{{ phone }}</span>
+        </button>
+      </a>
 
-      <!-- Nút nhắn tin -->
       <a-button
         type="primary"
         @click="handleNewChat"
         class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg w-full flex items-center justify-center gap-2"
       >
-      <i class="fa fa-comments" aria-hidden="true"></i>
+        <i class="fa fa-comments" aria-hidden="true"></i>
         <span>Nhắn tin</span>
       </a-button>
 
@@ -219,7 +222,7 @@ export default {
     phone: {
       required: true,
     },
-        userID: {
+    userID: {
       required: true,
     },
   },
@@ -309,32 +312,35 @@ export default {
       unfavorPost: "modules/favorite/unfavorPost",
       fetchFavoriteByPost: "modules/favorite/fetchFavoriteByPost",
       fetchPostById: "modules/post-detail/fetchPostById",
-      createConversationAction: 'modules/message/createConversation',
-      fetchConversations: 'modules/message/fetchConversations',
+      createConversationAction: "modules/message/createConversation",
+      fetchConversations: "modules/message/fetchConversations",
     }),
-    
-async handleNewChat() {
-  const payload = {
-    user1_id: this.userId,
-    user2_id: this.userID,
-  }
 
-  try {
-    const conversation = await this.createConversationAction(payload)
+    async handleNewChat() {
+      const payload = {
+        user1_id: this.userId,
+        user2_id: this.userID,
+      };
 
-    // 🔁 Cập nhật danh sách trước khi mở
-    await this.fetchConversations(this.userId)
+      try {
+        const conversation = await this.createConversationAction(payload);
 
-    this.$store.commit('modules/message/setCurrentConversationId', conversation.id)
+        await this.fetchConversations(this.userId);
 
-    // Gửi event để mở ChatWindow
-    window.dispatchEvent(new CustomEvent('open-chat', {
-      detail: { conversationId: conversation.id }
-    }))
-  } catch (err) {
-    console.error('Lỗi tạo cuộc trò chuyện:', err)
-  }
-},
+        this.$store.commit(
+          "modules/message/setCurrentConversationId",
+          conversation.id
+        );
+
+        window.dispatchEvent(
+          new CustomEvent("open-chat", {
+            detail: { conversationId: conversation.id },
+          })
+        );
+      } catch (err) {
+        console.error("Lỗi tạo cuộc trò chuyện:", err);
+      }
+    },
 
     async toggleFavorite() {
       if (!this.userId) {
@@ -524,9 +530,8 @@ async handleNewChat() {
 
 /* Tailwind CSS's bg-blue-300 color */
 .active-time-slot {
-  background-color: #93c5fd; 
+  background-color: #93c5fd;
 }
-
 
 @keyframes scale-in {
   0% {

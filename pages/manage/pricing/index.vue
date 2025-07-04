@@ -50,7 +50,7 @@
         <div class="p-6">
           <h3 class="text-lg font-semibold mb-2">{{ service.service_name }}</h3>
           <br />
-          <div class="ml-[40px]">
+          <div class="">
             <div class="flex items-center mr-2">
               <p class="text-sm mr-2">
                 Ngày:

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white rounded-md p-4 border p-4">
+  <div class="w-full bg-white rounded-md p-4 border">
     <h3 class="font-semibold text-lg mb-4">
       {{ type === "recent" ? "Tin mới đăng" : "Tin nổi bật" }}
     </h3>

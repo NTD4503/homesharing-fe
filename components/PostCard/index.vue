@@ -44,14 +44,13 @@
           class="text-gray-700 text-base mb-2 line-clamp-2"
           v-html="post.description"
         ></p>
-        <div class="flex items-center mb-2">
+        <div class="flex items-center mb-2 gap-x-4">
           <img
             :src="post.avatar"
             alt="Landlord Avatar"
             class="w-8 h-8 rounded-full mr-2"
           />
           <span>{{ post.user_name }}</span>
-          <span class="text-gray-700 ml-2">{{ post.phone }}</span>
           <span
             @click="toggleFavorite"
             class="heart-icon ml-2 text-lg"
@@ -59,6 +58,11 @@
             title="Yêu Thích"
           >
             <i class="fa fa-heart" aria-hidden="true"></i>
+          </span>
+          <span
+            v-if="post.distance_km !== '-1' && post.distance_km !== undefined"
+          >
+            Cách bạn {{ post.distance_km }} km
           </span>
         </div>
       </div>
@@ -112,13 +116,11 @@ export default {
             return "text-xl";
           case 3:
             return "text-lg";
-          case 4:
-            return "text-base";
           default:
-            return "text-xl";
+            return "text-base";
         }
       } else {
-        return "text-xl";
+        return "text-base";
       }
     },
     titleColor() {
@@ -146,7 +148,7 @@ export default {
       fetchAllServices: "modules/service/fetchAllServices",
     }),
     async setService() {
-      //  console.log("postsetService_postcard ", this.post); 
+      //  console.log("postsetService_postcard ", this.post);
       if (process.browser) {
         const token = localStorage.getItem("accessToken");
         if (token) {
@@ -193,17 +195,17 @@ export default {
         message.error("Đã xảy ra lỗi, vui lòng thử lại sau");
       }
     },
-formattedTime() {
-  const createdAt = this.post.created_at;
-  // console.log('createdAt trong formattedTime: ', createdAt);
-  
-  if (!createdAt) {
-    return 'Không rõ thời gian';
-  }
+    formattedTime() {
+      const createdAt = this.post.created_at;
+      // console.log('createdAt trong formattedTime: ', createdAt);
 
-  const time = moment(createdAt).fromNow();
-  return time.charAt(0).toUpperCase() + time.slice(1);
-},
+      if (!createdAt) {
+        return "Không rõ thời gian";
+      }
+
+      const time = moment(createdAt).fromNow();
+      return time.charAt(0).toUpperCase() + time.slice(1);
+    },
 
     formatCurrency(amount) {
       const formatter = new Intl.NumberFormat("vi-VN", {
@@ -243,7 +245,6 @@ formattedTime() {
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 1;
-
 }
 
 .line-clamp-2 {
@@ -252,7 +253,6 @@ formattedTime() {
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
-  
 }
 
 .line-clamp-3 {
@@ -261,6 +261,5 @@ formattedTime() {
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 3;
-  
 }
 </style>

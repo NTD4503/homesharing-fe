@@ -1,6 +1,6 @@
 <template>
   <header class="w-full py-4">
-    <div class="container mx-auto flex justify-between items-center">
+    <div class="container mx-auto flex justify-between items-center px-8">
       <div>
         <router-link to="/">
           <img :src="appLogo" alt="Logo" class="h-20 w-50" />
@@ -102,22 +102,22 @@
         </li>
         <li>
           <router-link
-            :to="{ path: '/search', query: { postType: 1 } }"
-            class="nav-link"
-            @click="setActive('phongtro')"
-            :class="{ active: activeLink === 'phongtro' }"
-          >
-            Cho thuê
-          </router-link>
-        </li>
-        <li>
-          <router-link
             :to="{ path: '/search', query: { postType: 2 } }"
             class="nav-link"
             @click="setActive('timoghep')"
             :class="{ active: activeLink === 'timoghep' }"
           >
             Tìm ở ghép
+          </router-link>
+        </li>
+        <li>
+          <router-link
+            :to="hasToken() ? 'manage/new-post' : '/login'"
+            class="nav-link"
+            @click="setActive('chothue')"
+            :class="{ active: activeLink === 'chothue' }"
+          >
+            Cho thuê
           </router-link>
         </li>
         <li>

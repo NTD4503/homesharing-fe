@@ -94,8 +94,12 @@ export default {
           user_id: this.userId,
           transaction_id: queryString.id,
           status: queryString.status,
+          orderCode: queryString.orderCode,
         };
-          if (queryString.status === "PAID") {
+
+        await this.storePaymentReturn(payload);
+
+        if (queryString.status === "PAID") {
           const newAccessToken = await this.refreshAccessToken();
           localStorage.setItem("accessToken", newAccessToken);
         }

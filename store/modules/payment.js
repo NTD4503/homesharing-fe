@@ -17,7 +17,7 @@ export const actions = {
     });
   },
   storePaymentReturn({ commit }, payload) {
-    console.log(payload);
+    console.log("paymentFE", payload);
     return new Promise((resolve, reject) => {
       this.$axios
         .post(`/api/v1/payment-return`, payload)

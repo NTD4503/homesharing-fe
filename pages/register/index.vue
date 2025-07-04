@@ -1,3 +1,4 @@
+<!-- page register -->
 <template>
   <a-form-model
     :form="form"

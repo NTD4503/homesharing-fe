@@ -1,3 +1,4 @@
+<!-- page home -->
 <template>
   <div class="">
     <div class="slider">
@@ -11,16 +12,20 @@
             class="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
           >
             <div class="flex">
-              <div
-                class="text-white w-64 h-32 border-4 border-blue-500 flex flex-col justify-center"
-              >
-                <div class="text-center text-3xl">Cho thuê</div>
-              </div>
-              <div
-                class="w-64 h-32 border-black flex flex-col justify-center bg-blue-500 text-white"
-              >
-                <div class="text-center text-3xl">Tìm kiếm</div>
-              </div>
+              <router-link :to="hasToken() ? 'manage/new-post' : '/login'">
+                <div
+                  class="text-white w-64 h-32 border-4 border-blue-500 flex flex-col justify-center"
+                >
+                  <div class="text-center text-3xl">Cho thuê</div>
+                </div>
+              </router-link>
+              <router-link :to="'/search'">
+                <div
+                  class="w-64 h-32 border-black flex flex-col justify-center bg-blue-500 text-white"
+                >
+                  <div class="text-center text-3xl">Tìm kiếm</div>
+                </div>
+              </router-link>
             </div>
             <br />
 
@@ -147,6 +152,9 @@ export default {
     ...mapActions({
       fetchAllPosts: "modules/post/fetchAllPosts",
     }),
+    hasToken() {
+      return localStorage.getItem("accessToken") !== null;
+    },
     slide(direction) {
       const numSlides = this.images.length;
       if (direction === "prev") {
